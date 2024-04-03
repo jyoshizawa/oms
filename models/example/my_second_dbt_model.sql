@@ -1,6 +1,7 @@
 
--- Use the `ref` function to select from other models
+-- 2024-04-03 修正
 
 select *
-from {{ ref('my_first_dbt_model') }}
-where id = 1
+from 
+    IT_TEST_DB.DBT_SCHEMA_YOS_01.MY_FIRST_DBT_MODEL
+where ITEM_CD like 'V%'

@@ -1,0 +1,83 @@
+version: 2   -- ← これの意味を調べて！
+
+
+models:
+
+# sqlの宣言 その１ マスターテーブル系
+  - name: yos_ITEM_CD_list
+    columns:
+      - name: ITEM_CD
+        tests:
+          - unique
+          - not_null 
+
+  - name: yos_PSI_ELEMENT_list
+    columns:
+      - name: PSI_ELEMENT
+        tests:
+          - unique
+          - not_null
+
+
+
+
+# sql宣言 その３
+  - name: yos_wk_01
+    columns:      
+      - name: PSI_ELEMENT
+        tests:
+          - not_null
+          - relationships:
+              to: ref('yos_PSI_ELEMENT_list')
+              field: PSI_ELEMENT
+
+
+  - name: yos_wk_02   # ＜注意＞ 元の psi_month_2309_10_11 の ITEM_CDにNULLがあるのでマスタと紐づけできない
+    columns:      
+      # - name: ITEM_CD
+      #   tests:
+      #     - relationships:
+      #         to: ref('yos_ITEM_CD_list')
+      #         field: ITEM_CD
+      - name: PSI_ELEMENT
+        tests:
+          - not_null
+          - relationships:
+              to: ref('yos_PSI_ELEMENT_list')
+              field: PSI_ELEMENT
+
+
+
+  - name: yos_wk_03   # ＜注意＞ yos_wk_02と同じ
+    columns:      
+      # - name: ITEM_CD
+      #   tests:
+      #     - relationships:
+      #         to: ref('yos_ITEM_CD_list')
+      #         field: ITEM_CD
+      - name: PSI_ELEMENT
+        tests:
+          - not_null
+          - relationships:
+              to: ref('yos_PSI_ELEMENT_list')
+              field: PSI_ELEMENT
+          # - accepted_values:
+          #     values: ['B%', 'P%']  # このような指定はできない様  https://docs.getdbt.com/reference/resource-properties/data-tests
+
+
+  # - name: yos_wk_04  # ＜注意＞ 元の psi_month_2309_10_11 の ITEM_CD IS NOT NULL
+  #   columns:
+  #     - name: ITEM_CD
+  #       tests:
+  #         - not_null
+  #         - relationships:
+  #             to: ref('yos_ITEM_CD_list')
+  #             field: ITEM_CD
+  #     - name: PSI_ELEMENT
+  #       tests:
+  #         - not_null
+  #         - relationships:
+  #             to: ref('yos_PSI_ELEMENT_list')
+  #             field: PSI_ELEMENT
+
+
