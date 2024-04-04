@@ -17,6 +17,10 @@ models:
       - name: last_month
         tests:
           - not_null
+      - name: last_year_month
+        tests:
+          - not_null
+
 
 
 
@@ -57,6 +61,8 @@ models:
           - unique
           - not_null
 
+
+
   #################################################################
   #  集計（一次）
   #################################################################
@@ -66,6 +72,7 @@ models:
   #----------------------------------------------------------------
   - name: yos_S_monthly_quantity
     columns:
+      - name: YYYYMM
       - name: PSI_ELEMENT
         tests:
           - not_null
@@ -87,7 +94,7 @@ models:
               to: ref('yos_CDs_list')
               field: BC_CD
 
-      - name: s_QUANTITY # 月売上 合計
+      - name: S_QUANTITY # 月売上 合計
 
 
 

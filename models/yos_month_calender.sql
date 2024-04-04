@@ -1,6 +1,7 @@
 select 
     YYYYMM,
-    last_month
+    last_month,
+    ifnull(YYYYMM - 100, YYYYMM) AS last_year_month
 from (
     -- lag関数　2個出ちゃう、、なんでだろ？？ 　　→ whereで応急処置
     select distinct
@@ -13,5 +14,5 @@ from (
 where 
     YYYYMM <> last_month
     or YYYYMM = min_month
-    
 order by 1
+
