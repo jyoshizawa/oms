@@ -1,0 +1,180 @@
+version: 2   -- ← これの意味を調べて！
+
+models:
+  #################################################################
+  #  マスターテーブル系
+  #################################################################
+
+  #----------------------------------------------------------------
+  # カレンダー　当月・前月
+  #----------------------------------------------------------------
+  - name: yos_month_calender
+    columns:
+      - name: YYYYMM
+        tests:
+          - unique
+          - not_null
+      - name: last_month
+        tests:
+          - not_null
+      - name: last_year_month
+        tests:
+          - not_null
+
+
+
+
+  #----------------------------------------------------------------
+  # 月次集計用 コードマスタ
+  #----------------------------------------------------------------
+  - name: yos_CDs_list
+    columns:
+      - name: PSI_ELEMENT
+        tests:
+          - not_null
+      - name: SITE_CD
+        tests:
+          - not_null
+      - name: BC_CD
+        tests:
+          - not_null
+
+
+  #----------------------------------------------------------------
+  # ITEM_CD マスタ　　
+  #----------------------------------------------------------------
+  - name: yos_ITEM_CD_list
+    columns:
+      - name: ITEM_CD
+        tests:
+          - unique
+          - not_null
+      - name: start_YYYYMM # 売上開始月　とみなす
+
+  #----------------------------------------------------------------
+  #
+  #----------------------------------------------------------------
+  - name: yos_PSI_ELEMENT_list
+    columns:
+      - name: PSI_ELEMENT
+        tests:
+          - unique
+          - not_null
+
+
+
+  #################################################################
+  #  集計（一次）
+  #################################################################
+
+  #----------------------------------------------------------------
+  # 月次集計
+  #----------------------------------------------------------------
+  - name: yos_S_monthly_quantity
+    columns:
+      - name: YYYYMM
+      - name: PSI_ELEMENT
+        tests:
+          - not_null
+          - relationships:
+              to: ref('yos_CDs_list')
+              field: PSI_ELEMENT
+
+      - name: SITE_CD  
+        tests:
+          - not_null
+          - relationships:
+              to: ref('yos_CDs_list')
+              field: SITE_CD
+
+      - name: BC_CD
+        tests:
+          - not_null
+          - relationships:
+              to: ref('yos_CDs_list')
+              field: BC_CD
+
+      - name: S_QUANTITY # 月売上 合計
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  #################################################################
+  #  吉澤　調査・作業用
+  #################################################################
+
+  # sql宣言 その３
+  - name: yos_wk_01
+    columns:
+      - name: PSI_ELEMENT
+        tests:
+          - not_null
+          - relationships:
+              to: ref('yos_PSI_ELEMENT_list')
+              field: PSI_ELEMENT
+
+  - name: yos_wk_02 # ＜注意＞ 元の psi_month_2309_10_11 の ITEM_CDにNULLがあるのでマスタと紐づけできない
+    columns:
+      # - name: ITEM_CD
+      #   tests:
+      #     - relationships:
+      #         to: ref('yos_ITEM_CD_list')
+      #         field: ITEM_CD
+      - name: PSI_ELEMENT
+        tests:
+          - not_null
+          - relationships:
+              to: ref('yos_PSI_ELEMENT_list')
+              field: PSI_ELEMENT
+
+  - name: yos_wk_03 # ＜注意＞ yos_wk_02と同じ
+    columns:
+      # - name: ITEM_CD
+      #   tests:
+      #     - relationships:
+      #         to: ref('yos_ITEM_CD_list')
+      #         field: ITEM_CD
+      - name: PSI_ELEMENT
+        tests:
+          - not_null
+          - relationships:
+              to: ref('yos_PSI_ELEMENT_list')
+              field: PSI_ELEMENT
+          # - accepted_values:
+          #     values: ['B%', 'P%']  # このような指定はできない様  https://docs.getdbt.com/reference/resource-properties/data-tests
+
+  # - name: yos_wk_04  # ＜注意＞ 元の psi_month_2309_10_11 の ITEM_CD IS NOT NULL
+  #   columns:
+  #     - name: ITEM_CD
+  #       tests:
+  #         - not_null
+  #         - relationships:
+  #             to: ref('yos_ITEM_CD_list')
+  #             field: ITEM_CD
+  #     - name: PSI_ELEMENT
+  #       tests:
+  #         - not_null
+  #         - relationships:
+  #             to: ref('yos_PSI_ELEMENT_list')
+  #             field: PSI_ELEMENT
