@@ -22,5 +22,3 @@ group by
     YYYYMM,
     SITE_CD,
     BC_CD
-
-
