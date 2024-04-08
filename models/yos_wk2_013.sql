@@ -23,4 +23,3 @@ select * from w_list
 -- order by  
 --     SCENARIO,
 --     YYYYMM
-
