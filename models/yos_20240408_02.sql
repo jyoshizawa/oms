@@ -4,6 +4,7 @@ with w_list as (
         PLANNING_DATA,
         SCENARIO,
         cast(replace( SCENARIO,'/','-') || '-01' as timestamp) as date_SCENARIO,  --日付型
+        cast(replace( SCENARIO,'/','-') || '-01' as timestamp) as "シナリオ_日付型",  --日付型 セマンティックレイヤー
         case 
             when right( SCENARIO,2) in ('01','02','03') then  cast( cast(left(SCENARIO,4) as int) -1 AS varchar)
             else left(SCENARIO,4)
