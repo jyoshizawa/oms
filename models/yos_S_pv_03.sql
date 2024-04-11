@@ -19,7 +19,8 @@ select
     {% endfor %}
 
 from 
-    {{ ref('yos_S_pv_02') }} 
+    -- {{ ref('yos_S_pv_02') }} 
+    IT_TEST_DB.DBT_4_YOSHI.yos_S_pv_02
 group by 
     YYYYMM,
     SITE_CD,

@@ -12,4 +12,4 @@ select
 from 
     w_list as a
 inner join 
-    it_test_db.dbt_schema_yos_01.yos_wk_01 as b on a.psi_element = b.psi_element
+    it_test_db.DBT_4_YOSHI.yos_wk_01 as b on a.psi_element = b.psi_element
