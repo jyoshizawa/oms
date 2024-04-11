@@ -9,7 +9,7 @@ select
     VP4586040000_diff_QUANTITY
 from 
 --  {{ ref('yos_S_pv_03') }} 
-  IT_TEST_DB.DBT_SCHEMA_YOS_01.YOS_S_PV_03
+  IT_TEST_DB.DBT_4_YOSHI.YOS_S_PV_03
 where 
     -- ITEM_CD = 'VP4586040000'
     BC_CD = 1033

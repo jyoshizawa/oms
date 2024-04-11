@@ -5,21 +5,21 @@ models:
   #  マスターテーブル系
   #################################################################
 
-  #----------------------------------------------------------------
-  # カレンダー　当月・前月
-  #----------------------------------------------------------------
-  - name: yos_month_calender
-    columns:
-      - name: YYYYMM
-        tests:
-          - unique
-          - not_null
-      - name: last_month
-        tests:
-          - not_null
-      - name: last_year_month
-        tests:
-          - not_null
+  # #----------------------------------------------------------------
+  # # カレンダー 当月・前月
+  # #----------------------------------------------------------------
+  # - name: yos_month_calender
+  #   columns:
+  #     - name: YYYYMM
+  #       tests:
+  #         - unique
+  #         - not_null
+  #     - name: last_month
+  #       tests:
+  #         - not_null
+  #     - name: last_year_month
+  #       tests:
+  #         - not_null
 
   #----------------------------------------------------------------
   # 月次集計用 コードマスタ
@@ -37,7 +37,7 @@ models:
           - not_null
 
   #----------------------------------------------------------------
-  # ITEM_CD マスタ　　
+  # ITEM_CD マスタ
   #----------------------------------------------------------------
   - name: yos_ITEM_CD_list
     columns:
@@ -45,7 +45,7 @@ models:
         tests:
           - unique
           - not_null
-      - name: start_YYYYMM # 売上開始月　とみなす
+      - name: start_YYYYMM # 売上開始月 とみなす
 
   #----------------------------------------------------------------
   #
@@ -91,7 +91,7 @@ models:
       - name: S_QUANTITY # 月売上 合計
 
   #################################################################
-  #  吉澤　調査・作業用
+  #  吉澤 調査・作業用
   #################################################################
 
   # sql宣言 その３
@@ -120,11 +120,6 @@ models:
 
   - name: yos_wk_03 # ＜注意＞ yos_wk_02と同じ
     columns:
-      # - name: ITEM_CD
-      #   tests:
-      #     - relationships:
-      #         to: ref('yos_ITEM_CD_list')
-      #         field: ITEM_CD
       - name: PSI_ELEMENT
         tests:
           - not_null
@@ -134,17 +129,67 @@ models:
           # - accepted_values:
           #     values: ['B%', 'P%']  # このような指定はできない様  https://docs.getdbt.com/reference/resource-properties/data-tests
 
-  # - name: yos_wk_04  # ＜注意＞ 元の psi_month_2309_10_11 の ITEM_CD IS NOT NULL
-  #   columns:
-  #     - name: ITEM_CD
-  #       tests:
-  #         - not_null
-  #         - relationships:
-  #             to: ref('yos_ITEM_CD_list')
-  #             field: ITEM_CD
-  #     - name: PSI_ELEMENT
-  #       tests:
-  #         - not_null
-  #         - relationships:
-  #             to: ref('yos_PSI_ELEMENT_list')
-  #             field: PSI_ELEMENT
+
+
+  #-------------------
+  #  セマンティックレイヤーの確認
+  # https://docs.getdbt.com/docs/build/semantic-models
+  # https://docs.getdbt.com/docs/use-dbt-semantic-layer/dbt-sl
+
+  - name: yos_20240408_03s
+    columns:
+
+      - name: PLANNING_DATA
+        tests:
+          - not_null
+
+      - name: DATE_SCENARIO
+        tests:
+          - not_null
+
+      - name: QUANTITY
+
+
+
+
+semantic_models:
+  - name: yos_semantic_20240408_03      ## Required
+    description: "説明か"               ## Optional
+    model: ref('yos_20240408_03s')                  ## Required
+    defaults:                                 ## Required
+      agg_time_dimension: date_scenario    ## Required if the model contains measures
+ 
+    entities:                                 ## Required
+      - name: planning_data
+        type: primary
+
+    measures: 
+      - name: quantity
+        description: "QUANTITY の説明 "
+        agg: sum
+
+    dimensions: 
+      - name: date_scenario
+        type: time
+        type_params:
+          time_granularity: day
+        # expr: date_SCENARIO
+
+
+
+# メトリック の記述はこちらに保存
+# metrics/orders_semantic.yml
+# https://docs.getdbt.com/docs/build/semantic-models
+
+
+
+# # 挙動が安定するまでここに書く
+metrics:
+  - name: quantity_total
+    description: Sum of total order amount. Includes tax + revenue.
+    type: simple
+    label: Order Total
+    type_params:
+      measure: quantity
+
+
