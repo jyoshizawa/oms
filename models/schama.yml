@@ -153,7 +153,7 @@ models:
 
 
 semantic_models:
-  - name: yos_semantic_20240408_03      ## Required
+  - name: "yos_semantic_20240408_03"      ## Required
     description: "説明か"               ## Optional
     model: ref('yos_20240408_03s')                  ## Required
     defaults:                                 ## Required
@@ -186,7 +186,7 @@ semantic_models:
 # # 挙動が安定するまでここに書く
 metrics:
   - name: quantity_total
-    description: Sum of total order amount. Includes tax + revenue.
+    description: "メトリクス定義 合計数"
     type: simple
     label: Order Total
     type_params:
