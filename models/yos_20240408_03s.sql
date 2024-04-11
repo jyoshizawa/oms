@@ -18,16 +18,16 @@ with w_list as (
 
 )
 
--- select * from w_list
+select * from w_list
 
 
-    select 
-        date_SCENARIO,
-        PLANNING_DATA,
-        sum(QUANTITY) as S_QUANTITY
-    from
-        w_list
-    group by
-        date_SCENARIO,
-        PLANNING_DATA
+    -- select 
+    --     date_SCENARIO,
+    --     PLANNING_DATA,
+    --     sum(QUANTITY) as S_QUANTITY
+    -- from
+    --     w_list
+    -- group by
+    --     date_SCENARIO,
+    --     PLANNING_DATA
     
