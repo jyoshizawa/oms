@@ -131,41 +131,57 @@ models:
 
 
 
-  #-------------------
-  #  セマンティックレイヤーの確認
-  # https://docs.getdbt.com/docs/build/semantic-models
-  # https://docs.getdbt.com/docs/use-dbt-semantic-layer/dbt-sl
-
-  - name: yos_20240408_03s
-    columns:
-
-      - name: PLANNING_DATA
-        tests:
-          - not_null
-
-      - name: DATE_SCENARIO
-        tests:
-          - not_null
-
-      - name: QUANTITY
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  #################################################################
+  # セマンティックレイヤー、メトリック 使ってみる
+  #   yos_20240411.sql 
+  #################################################################
 
 semantic_models:
-  - name: "yos_semantic_20240408_03"      ## Required
-    description: "説明か"               ## Optional
-    model: ref('yos_20240408_03s')                  ## Required
-    defaults:                                 ## Required
-      agg_time_dimension: date_scenario    ## Required if the model contains measures
- 
-    entities:                                 ## Required
+  - name: "yos_20240411"
+    description: "説明か"
+    model: ref('yos_20240411') 
+
+    defaults:
+      agg_time_dimension: date_scenario
+            
+    entities:
       - name: planning_data
-        type: primary
+        type: Unique
+      
+      - name: scenario
+        type: Unique
+
+      - name: yyyymm
+        type: Unique
+
+      - name: psi_element
+        type: Unique
+
+      - name: item_cd
+        type: Unique
+    
+    primary_entity: planning_data, scenario, yyyymm, psi_element, item_cd
 
     measures: 
       - name: quantity
-        description: "QUANTITY の説明 "
+        description: "計算されるメジャーを記述します。"
         agg: sum
 
     dimensions: 
@@ -173,17 +189,16 @@ semantic_models:
         type: time
         type_params:
           time_granularity: day
-        # expr: date_SCENARIO
+
+      - name: date_yyyymm
+        type: time
+        type_params:
+          time_granularity: day
 
 
 
-# メトリック の記述はこちらに保存
-# metrics/orders_semantic.yml
-# https://docs.getdbt.com/docs/build/semantic-models
+# # メトリック
 
-
-
-# # 挙動が安定するまでここに書く
 metrics:
   - name: quantity_total
     description: "メトリクス定義 合計数"
@@ -191,5 +206,73 @@ metrics:
     label: Order Total
     type_params:
       measure: quantity
+
+
+
+
+  #################################################################
+  #    ↓ 削除 OK
+  #################################################################
+
+#   #-------------------
+#   #  セマンティックレイヤーの確認
+#   # https://docs.getdbt.com/docs/build/semantic-models
+#   # https://docs.getdbt.com/docs/use-dbt-semantic-layer/dbt-sl
+
+#   - name: yos_20240408_03s
+#     columns:
+
+#       - name: PLANNING_DATA
+#         tests:
+#           - not_null
+
+#       - name: DATE_SCENARIO
+#         tests:
+#           - not_null
+
+#       - name: QUANTITY
+
+
+
+
+# semantic_models:
+#   - name: "yos_semantic_20240408_03"      ## Required
+#     description: "説明か"               ## Optional
+#     model: ref('yos_20240408_03s')                  ## Required
+#     defaults:                                 ## Required
+#       agg_time_dimension: date_scenario    ## Required if the model contains measures
+ 
+#     entities:                                 ## Required
+#       - name: planning_data
+#         type: primary
+
+#     measures: 
+#       - name: quantity
+#         description: "QUANTITY の説明 "
+#         agg: sum
+
+#     dimensions: 
+#       - name: date_scenario
+#         type: time
+#         type_params:
+#           time_granularity: day
+#         # expr: date_SCENARIO
+
+
+
+# # メトリック の記述はこちらに保存
+# # metrics/orders_semantic.yml
+# # https://docs.getdbt.com/docs/build/semantic-models
+
+
+
+# # # 挙動が安定するまでここに書く
+# metrics:
+#   - name: quantity_total
+#     description: "メトリクス定義 合計数"
+#     type: simple
+#     label: Order Total
+#     type_params:
+#       measure: quantity
 
 
