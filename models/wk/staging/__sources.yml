@@ -1,0 +1,27 @@
+version: 2
+
+sources:
+  - name: eco #-- economy_data
+    database: SNOWFLAKE_SAMPLE_DATA
+    schema: TPCH_SF1
+    tables:
+      - name: orders
+        description: sample orders table
+      - name: customer # SNOWFLAKE_SAMPLE_DATA.TPCH_SF1.COSTOMER  ※最後Sつかない
+        description: sample customers table
+      - name: lineitem
+        description: sample lineitem table
+      # - name: products
+      #   description: sample products table
+      - name: supplier
+        description: sample supplies table
+      - name: region
+        description: sample region table
+# 参考サイトに参照：　https://dev.classmethod.jp/articles/dbt-best-practice-by-dbt-athena/
+#　↓ この辺りをコピーして確認
+# customers.sql
+# order_items.sql →　lineitem
+# orders.sql
+# supplies.sql → supplir
+# locations.sql → region
+# products.sql　？

@@ -40,3 +40,11 @@ models:
     # Applies to all files under models/example/
     example:
       +materialized: table
+
+
+
+# ここ追加
+# models:
+#   jaffle_shop:
+#     staging:
+#       +materialized: view

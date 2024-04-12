@@ -1,3 +1,4 @@
+
 -- https://docs.getdbt.com/docs/build/metricflow-time-spine
 
 {{
