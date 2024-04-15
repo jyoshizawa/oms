@@ -16,7 +16,7 @@ renamed as (
         R_REGIONKEY as location_id,
 
         ---------- text
-        R_NAME as location_name,
+        ifnull(R_NAME,'---' || R_REGIONKEY) as location_name,
 
         -- ---------- numerics
         -- tax_rate,  　　-- 　サンプルにはなかった、、、

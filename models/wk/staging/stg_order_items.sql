@@ -10,11 +10,10 @@ with source as (
 
 renamed as (
 
-    select
-
+    select distinct 
         ----------  ids
-        L_ORDERKEY as order_item_id,
-        L_PARTKEY as order_id,
+        L_PARTKEY || L_ORDERKEY || L_SUPPKEY || L_RECEIPTDATE as order_item_id,
+        L_ORDERKEY as order_id,
         L_SHIPMODE as product_id
 
     from source

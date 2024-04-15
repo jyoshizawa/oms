@@ -100,15 +100,15 @@ semantic_models:
 
 
 
-# # メトリック
+# # # メトリック
 
-metrics:
-  - name: quantity_total
-    description: "メトリクス定義 合計数"
-    type: simple
-    label: Order Total
-    type_params:
-      measure: quantity
+# metrics:
+#   - name: quantity_total
+#     description: "メトリクス定義 合計数"
+#     type: simple
+#     label: Order Total
+#     type_params:
+#       measure: quantity
 
 
 
