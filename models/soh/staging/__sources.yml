@@ -1,0 +1,9 @@
+version: 2
+
+sources:
+  - name: soh #-- economy_data
+    database: IT_TEST_DB
+    schema: DBT_4_YOSHI
+    tables:
+      - name: test_cust_data
+        description: custmers csv data

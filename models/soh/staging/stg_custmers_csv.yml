@@ -1,0 +1,28 @@
+models:
+  - name: stg_customers_csv
+    description: Customer data from csv.
+    columns:
+      - name: SUPPLIER_ITEMCODE
+        description: memo.
+        tests:
+          - not_null
+          - unique
+      - name: WAREHOUSE
+        description: WAREHOUSE.
+      - name: ITEMCODE
+        description: ITEMCODE.
+      - name: SUPPLIERNAME
+        description: SUPPLIERNAME.
+# WAREHOUSE,
+# 	ITEMCODE,
+# 	DESCRIPTIONCOMBO,
+# 	SUPPLIERNAME,
+# 	SUPPLIER_ITEMCODE,
+# 	GTIN,
+# 	QTYON_HAND,
+# 	QTYON_ORDER,
+# 	DATADATE,
+# 	CUSTOMER,
+# 	UPLOAD_USER,
+# 	UPLORAD_TIME
+# ) as (
