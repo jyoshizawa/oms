@@ -1,5 +1,5 @@
 models:
-  - name: stg_customers_csv
+  - name: stg_custmers_csv
     description: Customer data from csv.
     columns:
       - name: SUPPLIER_ITEMCODE

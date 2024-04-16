@@ -1,3 +1,7 @@
+/*
+  csv ロードテーブルのうち、重複をのぞいた計算対象データ
+*/
+
 with wk_upload as (
     select
         DATADATE,
