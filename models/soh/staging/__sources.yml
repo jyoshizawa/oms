@@ -7,3 +7,5 @@ sources:
     tables:
       - name: test_cust_data
         description: custmers csv data
+      - name: test_cust_sell_data
+        description: custmers csv data
