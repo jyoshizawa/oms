@@ -2,6 +2,7 @@ with w_soh as (
     select 
         DATADATE as DATA_DATE,
         CUSTOMER,
+        SUPPLIERNAME,
         Supplier_ItemCode,
         weekly_QTYON_HAND,
         weekly_QTYON_ORDER
@@ -25,6 +26,7 @@ select
     t1.DATA_DATE,
     t1.CUSTOMER,
     t1.Supplier_ItemCode,
+    t1.SUPPLIERNAME,
     t1.weekly_QTYON_HAND,
     t1.weekly_QTYON_ORDER,
     ifnull(t2.weekly_VALUE, 0 )     as weekly_VALUE,
