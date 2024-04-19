@@ -6,6 +6,7 @@ select
     DATADATE,
     CUSTOMER,
     trim(Supplier_ItemCode)     as Supplier_ItemCode,
+    max(trim(SUPPLIERNAME))     as SUPPLIERNAME,
     sum(ifnull(QTYON_HAND,0))   as weekly_QTYON_HAND,
     sum(ifnull(QTYON_ORDER,0))  as weekly_QTYON_ORDER
 from

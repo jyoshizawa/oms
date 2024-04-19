@@ -9,3 +9,7 @@ sources:
         description: custmers csv data
       - name: test_cust_sell_data
         description: custmers csv data
+
+  # 2024/04/18 1つにまとめたもの　Lが3つ。。。。。
+      - name: TEST_SOH_SELLL
+        description: custmers csv data
