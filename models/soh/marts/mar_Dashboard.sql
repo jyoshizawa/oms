@@ -25,6 +25,8 @@ w_sell as (
 select 
     t1.DATA_DATE,
     t1.CUSTOMER,
+    left(t1.CUSTOMER,2)             as test_str_cst, -- Qlik確認用
+    left(t1.Supplier_ItemCode,1)    as test_str_sup,
     t1.Supplier_ItemCode,
     t1.SUPPLIERNAME,
     t1.weekly_QTYON_HAND,
