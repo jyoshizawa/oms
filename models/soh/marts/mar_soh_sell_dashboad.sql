@@ -33,7 +33,7 @@ from (
         t1.RETAILER_NAME,
         t1.WEEKLY_DATE,
         t2.PRODUCT_CODE,
-        t3.MATERIAL_name,
+        coalesce(t3.MATERIAL_name,t2.PRODUCT_CODE ) as MATERIAL_name,
         t2.QTYON_HAND,
         t2.QTY_SOLD
     from 
@@ -51,6 +51,7 @@ from (
 )
 where
     PRODUCT_CODE is not null
+    and WEEKLY_DATE >= '2023/1/1'
 group by    
     RETAILER_NAME,
     WEEKLY_DATE,
