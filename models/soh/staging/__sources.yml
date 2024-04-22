@@ -3,16 +3,15 @@ version: 2
 sources:
   - name: soh #-- economy_data
     database: IT_TEST_DB
-    schema: DBT_4_YOSHI
+    # schema: DBT_4_YOSHI
+    schema: TEST_SCHEMA
     tables:
-      - name: test_cust_data
-        description: custmers csv data
-      - name: test_cust_sell_data
-        description: custmers csv data
+      # - name: test_cust_data
+      #   description: custmers csv data
+      # - name: test_cust_sell_data
+      #   description: custmers csv data
 
-  # 2024/04/18 1つにまとめたもの　Lが3つ。。。。。
-      - name: test_soh_selll
-        description: custmers csv data
-      - name: master_naterual
-        description: master  naterual
-        
+      - name: soh_master_naterual
+        description: SOH_MASTER_NATERUAL
+      - name: soh_sell_test
+        description: SOH_SELL_TEST
