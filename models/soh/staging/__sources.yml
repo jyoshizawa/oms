@@ -11,5 +11,8 @@ sources:
         description: custmers csv data
 
   # 2024/04/18 1つにまとめたもの　Lが3つ。。。。。
-      - name: TEST_SOH_SELLL
+      - name: test_soh_selll
         description: custmers csv data
+      - name: master_naterual
+        description: master  naterual
+        
