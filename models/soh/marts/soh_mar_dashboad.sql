@@ -31,7 +31,9 @@ select
  -- 日付型 
     split_part(WEEKLY_DATE,'/',1) || '-' || 
         lpad(split_part(WEEKLY_DATE,'/',2), 2,'0') || '-' || 
-        lpad(split_part(WEEKLY_DATE,'/',3),2,'0') as date_week
+        lpad(split_part(WEEKLY_DATE,'/',3),2,'0') as date_week,
+    PRODUCT_CODE || '_' || RETAILER_NAME as product_and_retailer  -- カラムを結合
+
 from (
     select distinct
         t1.RETAILER_NAME,
