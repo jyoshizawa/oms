@@ -1,6 +1,6 @@
 
 -- PLANNING_DATA, SCENARIO, ITEM_CD, YYYYMM, BC_CD 別 PSI_ELEMENT毎の集計
--- IT_TEST_DB.DBT_4_YOSHI.wk03_20240426
+-- IT_TEST_DB.DBT_4_YOSHI.wk03_staging
 -- staging です
 
 -- パラメータ
