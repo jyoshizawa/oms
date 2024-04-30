@@ -27,7 +27,11 @@ select
     PRODUCT_CODE,
     MATERIAL_name,
     sum(QTYON_HAND) as weekly_QTYON_HAND,
-    sum(QTY_SOLD) as weekly_QTY_SOLD
+    sum(QTY_SOLD) as weekly_QTY_SOLD,
+ -- 日付型 
+    split_part(WEEKLY_DATE,'/',1) || '-' || 
+        lpad(split_part(WEEKLY_DATE,'/',2), 2,'0') || '-' || 
+        lpad(split_part(WEEKLY_DATE,'/',3),2,'0') as date_week
 from (
     select distinct
         t1.RETAILER_NAME,
