@@ -1,0 +1,40 @@
+version: 2
+
+sources:
+  - name: dbo
+    schema: DBT_4_YOSHI
+    tables:
+      # SQL Server よりインポートしたテーブル
+      - name: DBO_BC
+        description: SQL Server  <BusinessManagement> [dbo].[BC]
+      - name: DBO_BUSINESS_SEGMENT
+        description: SQL Server  <BusinessManagement> [dbo].[BUSINESS_SEGMENT]
+      - name: DBO_DATA_CONDITION
+        description: SQL Server  <BusinessManagement> [dbo].[DATA_CONDITION]
+      - name: DBO_ITEM_APPLICATION
+        description: SQL Server  <BusinessManagement> [dbo].[ITEM_APPLICATION]
+      - name: DBO_NUM_ITEM_CLASSIFICATION
+        description: SQL Server  <BusinessManagement> [dbo].[NUM_ITEM_CLASSIFICATION]
+      - name: DBO_PLANNING_SITE
+        description: SQL Server  <BusinessManagement> [dbo].[PLANNING_SITE]
+      - name: DBO_PSI_LATEST
+        description: SQL Server  <BusinessManagement> [dbo].[PSI_LATEST]
+      - name: DBO_PSI_MONTH
+        description: SQL Server  <BusinessManagement> [dbo].[PSI_MONTH]
+      - name: DBO_SALES_RESULT_MONTH
+        description: SQL Server  <BusinessManagement> [dbo].[SALES_RESULT_MONTH]
+      - name: DBO_WBTKOBAI01
+        description: SQL Server  <BusinessManagement> [dbo].[WBTKOBAI01]
+      - name: DBO_WLTSEIKY01
+        description: SQL Server  <BusinessManagement> [dbo].[WLTSEIKY01]
+      - name: DBO_WLTSYUKK01
+        description: SQL Server  <BusinessManagement> [dbo].[WLTSYUKK01]
+
+
+# - name: test_cust_sell_data
+#   description: custmers csv data
+
+# - name: soh_master_naterual
+#   description: SOH_MASTER_NATERUAL
+# - name: soh_sell_test
+#   description: SOH_SELL_TEST
