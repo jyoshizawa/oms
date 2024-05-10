@@ -1,7 +1,6 @@
 
 
-/* View_PSISalesForcast */ 
--- 途中だよ
+/* View_PSISalesForcast */ -- 
 
 -- Snowflake用 日付情報
 with w_current_date_info as (
@@ -9,8 +8,9 @@ with w_current_date_info as (
         *
     from 
        IT_TEST_DB.DBT_4_YOSHI.STG_DATE_CALENDER
-)
+),
 
+w_data_list as (
     -- ◇◇◇◇
     -- 4月～前月までのPSIシナリオ取得 
     SELECT 
@@ -280,4 +280,89 @@ with w_current_date_info as (
     ) AS T1 
 
     -- ◇◇◇◇
+)
 
+SELECT            
+--   'FY' + CONVERT(VARCHAR, CASE WHEN SUBSTRING(A.YYYYMM, 5, 2) > '03' THEN YEAR(EOMONTH(A.YYYYMM + '01')) + 1 ELSE YEAR(EOMONTH(A.YYYYMM + '01')) END) AS PSI_PERIOD, 
+    'FY' || 
+    cast( 
+        case when right(cast(A.YYYYMM as varchar),2)  > '3' then 
+            cast(left(cast(A.YYYYMM as varchar),4) as int) + 1 
+            else cast(left(cast(A.YYYYMM as varchar),4) as int) end 
+    as varchar ) AS PSI_PERIOD, 
+    A.SCENARIO, 
+    A.PSI_ELEMENT, 
+    A.PSI_ELEMENT || A.SCENARIO AS PSI_ELM_SCENARIO, 
+--    LEFT(A.YYYYMM, 4) + '/' + SUBSTRING(A.YYYYMM, 5, 2) AS YYYYMM, 
+    A.YYYYMM,
+    A.BC_CD, 
+    A.SITE_CD, 
+    G.SITE_TXT, 
+    F.BUSINESS_SEG_CD, 
+    F.BUSINESS_SEG_TXT, 
+    LEFT(B.ITEM_CLASSIFICATION_CD, 7) AS ITEM_CLASSIFICATION_CD7, 
+    CASE LEFT(B.ITEM_CLASSIFICATION_CD, 7) 
+        WHEN '1049100' THEN 'FTS' 
+        WHEN '1049103' THEN 'MFTS CAMERA' 
+        WHEN '1049104' THEN 'MFTS LENS' 
+        WHEN '1049105' THEN 'MFTS ACCESSORIES' 
+    ELSE F.BUSINESS_SEG_TXT END AS ITEM_CLASSIFICATION_7, 
+    LEFT(B.ITEM_CLASSIFICATION_CD, 8) AS ProductTypeCD, 
+   C.DESCRIPTION AS ProductType, 
+   LEFT(B.ITEM_CLASSIFICATION_CD, 10) AS SeriesCD, 
+   D .DESCRIPTION AS Series, 
+   LEFT(B.ITEM_CLASSIFICATION_CD, 12)  AS ModelCD, 
+   E.DESCRIPTION AS Model, 
+   LEFT(B.ITEM_CLASSIFICATION_CD, 12) || B.COLOR_NAME_EN AS ModelCD_COLOR, 
+   E.DESCRIPTION || ' ' || B.COLOR_NAME_EN AS Model_COLOR, 
+   A.PLAN_ITEM_CD, 
+   B.ITEM_TXT/*,SUM(A.QTY) AS QTY*/ , 
+   A.QTY
+FROM  (
+    select 
+        PLANNING_DATA, 
+        SCENARIO, 
+        cast(YYYYMM as int) as YYYYMM, 
+        cast(BC_CD as int) as BC_CD, 
+        SITE_CD, 
+        PLAN_ITEM_CD, 
+        PSI_ELEMENT, 
+        QTY
+    from
+        w_data_list   -- ★★★★★★
+) as A
+
+left join
+   {{ source('dbo', 'DBO_ITEM_APPLICATION') }} as B  --[dbo].[ITEM_APPLICATION] AS B 
+on 
+    B.DELETE_FLAG = 0 
+    AND B.ITEM_CD = A.PLAN_ITEM_CD 
+left join
+    {{ source('dbo', 'DBO_NUM_ITEM_CLASSIFICATION') }} as c  -- [dbo].[NUM_ITEM_CLASSIFICATION] AS C 
+on 
+    C.DELETE_FLAG = 0 AND C.ITEM_CLASSIFICATION_CD = LEFT(B.ITEM_CLASSIFICATION_CD, 8) AND C.ZZKAISO = '3' 
+left join
+   {{ source('dbo', 'DBO_NUM_ITEM_CLASSIFICATION') }} as d  --  [dbo].[NUM_ITEM_CLASSIFICATION] AS D 
+on 
+    D .DELETE_FLAG = 0 
+    AND D .ITEM_CLASSIFICATION_CD = LEFT(B.ITEM_CLASSIFICATION_CD, 10) 
+    AND D .ZZKAISO = '4' 
+left join
+   {{ source('dbo', 'DBO_NUM_ITEM_CLASSIFICATION') }} as e  --[dbo].[NUM_ITEM_CLASSIFICATION] AS E 
+on 
+    E.DELETE_FLAG = 0 
+    AND E.ITEM_CLASSIFICATION_CD = LEFT(B.ITEM_CLASSIFICATION_CD, 12) 
+    AND E.ZZKAISO = '5' 
+left join
+   {{ source('dbo', 'DBO_BUSINESS_SEGMENT') }} as f  -- [dbo].[BUSINESS_SEGMENT] AS F 
+on 
+    F.DELETE_FLAG = 0 
+    AND RTRIM(F.BUSINESS_SEG_CD) = LEFT(B.ITEM_CLASSIFICATION_CD, 4) 
+left join
+   {{ source('dbo', 'DBO_PLANNING_SITE') }} as G   --PLANNING_SITE AS G 
+on 
+    G.SITE_CD = A.SITE_CD
+where             
+    B.ITEM_CATEGORY_CD2 NOT IN ('3')
+
+    
