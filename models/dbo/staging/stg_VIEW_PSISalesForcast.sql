@@ -121,7 +121,7 @@ w_data_list as (
             on T001.SOLD_TO = T000.KUNNR_JU
             where              
                 T000.FKDAT between (select yyyymmdd_startday from  w_current_date_info)  
-                            and  (select yyyymmdd_lastdady from  w_current_date_info)  
+                            and  (select yyyymmdd_lastmonth from  w_current_date_info)  
                 and T000.DELETE_FLAG = '' 
                 and T000.SPART IN (
                     select            
@@ -161,7 +161,7 @@ w_data_list as (
                 AND T000.DELETE_FLAG <> 'X'
             where             
                 T001.WADAT_IST between (select yyyymmdd_startday from  w_current_date_info)  
-                                and  (select yyyymmdd_lastdady from  w_current_date_info)  
+                                and  (select yyyymmdd_lastmonth from  w_current_date_info)  
                 and T001.WBSTK = 'C' 
                 and T001.DELETE_FLAG <> 'X'
             group by       
@@ -185,7 +185,7 @@ w_data_list as (
                 T001.ITEM_CD = T000.MATNR
             where
                 T000.WADAT_IST between (select yyyymmdd_startday from  w_current_date_info)  
-                                and  (select yyyymmdd_lastdady from  w_current_date_info)  
+                                and  (select yyyymmdd_lastmonth from  w_current_date_info)  
                 AND T000.WERKS = 'M103' 
                 AND T000.KUNNR_SH = '000000S101' 
                 AND T000.WADAT_IST <> '00000000' 
@@ -250,8 +250,8 @@ w_data_list as (
             T04.BC_CD = T00.BC_CD
             and SUBSTRING(T01.ITEM_CLASSIFICATION_CD, 5, 2) IN ('10')  -- ◇Snowflake  ↓の whereから移動した
         where
-            T00.SALES_DATE between (select yyyymmdd_startday from  w_current_date_info)  
-                                and  (select yyyymmdd_lastdady from  w_current_date_info)  
+            T00.SALES_DATE between (select date_start from  w_current_date_info)  
+                                and  (select date_last_month from  w_current_date_info)  
         group by
             -- FORMAT(EOMONTH(T00.SALES_DATE), 'yyyyMM'), 
             cast(year(T00.SALES_DATE) as varchar) 
@@ -270,11 +270,11 @@ w_data_list as (
                 -- [dbo].[PSI_MONTH] AS T00
                 {{ source('dbo', 'DBO_PSI_MONTH') }} as T00
             where
-                T00.YYYYMM between (select yyyymmdd_startday from  w_current_date_info)  
-                                and  (select yyyymmdd_lastdady from  w_current_date_info)  
                 -- T00.YYYYMM >= FORMAT((CASE WHEN Month(GETDATE() - 1) > '9' THEN DATEFROMPARTS(Year(GETDATE() - 1), 4, 1) ELSE DATEFROMPARTS(Year(GETDATE() - 1) - 1, 4, 1) END), 
                 --                   'yyyyMM') 
                 -- AND T00.SCENARIO >= FORMAT(DATEFROMPARTS(Year(GETDATE() - 1) - 1, 4, 1), 'yyyy/MM') 
+                T00.YYYYMM >= (select SART_YYYYMM from  w_current_date_info) 
+                and T00.SCENARIO >= (select SART_SCENARIO from  w_current_date_info) 
                 AND T00.PLANNING_DATA = 'Monthly Plan' 
                 AND T00.PSI_ELEMENT IN ('LS', 'LP ETD(IN)')
     ) AS T1 
@@ -286,7 +286,7 @@ SELECT
 --   'FY' + CONVERT(VARCHAR, CASE WHEN SUBSTRING(A.YYYYMM, 5, 2) > '03' THEN YEAR(EOMONTH(A.YYYYMM + '01')) + 1 ELSE YEAR(EOMONTH(A.YYYYMM + '01')) END) AS PSI_PERIOD, 
     'FY' || 
     cast( 
-        case when right(cast(A.YYYYMM as varchar),2)  > '3' then 
+        case when mod(cast(A.YYYYMM as int), 100) > 3 then 
             cast(left(cast(A.YYYYMM as varchar),4) as int) + 1 
             else cast(left(cast(A.YYYYMM as varchar),4) as int) end 
     as varchar ) AS PSI_PERIOD, 
@@ -340,7 +340,9 @@ on
 left join
     {{ source('dbo', 'DBO_NUM_ITEM_CLASSIFICATION') }} as c  -- [dbo].[NUM_ITEM_CLASSIFICATION] AS C 
 on 
-    C.DELETE_FLAG = 0 AND C.ITEM_CLASSIFICATION_CD = LEFT(B.ITEM_CLASSIFICATION_CD, 8) AND C.ZZKAISO = '3' 
+    C.DELETE_FLAG = 0 
+    AND C.ITEM_CLASSIFICATION_CD = LEFT(B.ITEM_CLASSIFICATION_CD, 8) 
+    AND C.ZZKAISO = '3' 
 left join
    {{ source('dbo', 'DBO_NUM_ITEM_CLASSIFICATION') }} as d  --  [dbo].[NUM_ITEM_CLASSIFICATION] AS D 
 on 

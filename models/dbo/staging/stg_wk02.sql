@@ -1,13 +1,14 @@
 
 
-/* View_PSISalesForcast */ 
+/* View_PSISalesForcast */ -- 
 
 -- Snowflake用 日付情報
 with w_current_date_info as (
     select 
         *
     from 
-       IT_TEST_DB.DBT_4_YOSHI.STG_DATE_CALENDER
+    --    IT_TEST_DB.DBT_4_YOSHI.STG_DATE_CALENDER
+    {{ref('stg_date_calender')}}
 ),
 
 w_data_list as (
@@ -121,7 +122,7 @@ w_data_list as (
             on T001.SOLD_TO = T000.KUNNR_JU
             where              
                 T000.FKDAT between (select yyyymmdd_startday from  w_current_date_info)  
-                            and  (select yyyymmdd_lastdady from  w_current_date_info)  
+                            and  (select yyyymmdd_lastmonth from  w_current_date_info)  
                 and T000.DELETE_FLAG = '' 
                 and T000.SPART IN (
                     select            
@@ -161,7 +162,7 @@ w_data_list as (
                 AND T000.DELETE_FLAG <> 'X'
             where             
                 T001.WADAT_IST between (select yyyymmdd_startday from  w_current_date_info)  
-                                and  (select yyyymmdd_lastdady from  w_current_date_info)  
+                                and  (select yyyymmdd_lastmonth from  w_current_date_info)  
                 and T001.WBSTK = 'C' 
                 and T001.DELETE_FLAG <> 'X'
             group by       
@@ -185,7 +186,7 @@ w_data_list as (
                 T001.ITEM_CD = T000.MATNR
             where
                 T000.WADAT_IST between (select yyyymmdd_startday from  w_current_date_info)  
-                                and  (select yyyymmdd_lastdady from  w_current_date_info)  
+                                and  (select yyyymmdd_lastmonth from  w_current_date_info)  
                 AND T000.WERKS = 'M103' 
                 AND T000.KUNNR_SH = '000000S101' 
                 AND T000.WADAT_IST <> '00000000' 
@@ -250,8 +251,8 @@ w_data_list as (
             T04.BC_CD = T00.BC_CD
             and SUBSTRING(T01.ITEM_CLASSIFICATION_CD, 5, 2) IN ('10')  -- ◇Snowflake  ↓の whereから移動した
         where
-            T00.SALES_DATE between (select yyyymmdd_startday from  w_current_date_info)  
-                                and  (select yyyymmdd_lastdady from  w_current_date_info)  
+            T00.SALES_DATE between (select date_start from  w_current_date_info)  
+                                and  (select date_last_month from  w_current_date_info)  
         group by
             -- FORMAT(EOMONTH(T00.SALES_DATE), 'yyyyMM'), 
             cast(year(T00.SALES_DATE) as varchar) 
@@ -270,11 +271,11 @@ w_data_list as (
                 -- [dbo].[PSI_MONTH] AS T00
                 {{ source('dbo', 'DBO_PSI_MONTH') }} as T00
             where
-                T00.YYYYMM between (select yyyymmdd_startday from  w_current_date_info)  
-                                and  (select yyyymmdd_lastdady from  w_current_date_info)  
                 -- T00.YYYYMM >= FORMAT((CASE WHEN Month(GETDATE() - 1) > '9' THEN DATEFROMPARTS(Year(GETDATE() - 1), 4, 1) ELSE DATEFROMPARTS(Year(GETDATE() - 1) - 1, 4, 1) END), 
                 --                   'yyyyMM') 
                 -- AND T00.SCENARIO >= FORMAT(DATEFROMPARTS(Year(GETDATE() - 1) - 1, 4, 1), 'yyyy/MM') 
+                T00.YYYYMM >= (select SART_YYYYMM from  w_current_date_info) 
+                and T00.SCENARIO >= (select SART_SCENARIO from  w_current_date_info) 
                 AND T00.PLANNING_DATA = 'Monthly Plan' 
                 AND T00.PSI_ELEMENT IN ('LS', 'LP ETD(IN)')
     ) AS T1 
@@ -282,28 +283,47 @@ w_data_list as (
     -- ◇◇◇◇
 )
 
+select 
+ YYYYMM,
+ 'FY' || 
+    cast( 
+        case when mod(YYYYMM,100) > 3 then 
+            cast(left(cast(A.YYYYMM as varchar),4) as int) + 1 
+            else cast(left(cast(A.YYYYMM as varchar),4) as int) end 
+    as varchar ) AS PSI_PERIOD,
+    cast(right(cast(cast(YYYYMM as int) as varchar),2) as int),
+    cast(YYYYMM as int),
+    mod(YYYYMM,100)
+from 
+    w_data_list as A
+where
+    SCENARIO = '2024/04'
+    and YYYYMM in ( 202312, 202401)
+/*
 SELECT            
 --   'FY' + CONVERT(VARCHAR, CASE WHEN SUBSTRING(A.YYYYMM, 5, 2) > '03' THEN YEAR(EOMONTH(A.YYYYMM + '01')) + 1 ELSE YEAR(EOMONTH(A.YYYYMM + '01')) END) AS PSI_PERIOD, 
     'FY' || 
-       cast( 
-        case when month(A.YYYYMM)  > 3 then year(A.YYYYMM) + 1 else year(A.YYYYMM) end 
-        as varchar ) AS PSI_PERIOD, 
-   A.SCENARIO, 
-   A.PSI_ELEMENT, 
-   A.PSI_ELEMENT || A.SCENARIO AS PSI_ELM_SCENARIO, 
+    cast( 
+        case when right(cast(A.YYYYMM as varchar),2)  > '3' then 
+            cast(left(cast(A.YYYYMM as varchar),4) as int) + 1 
+            else cast(left(cast(A.YYYYMM as varchar),4) as int) end 
+    as varchar ) AS PSI_PERIOD, 
+    A.SCENARIO, 
+    A.PSI_ELEMENT, 
+    A.PSI_ELEMENT || A.SCENARIO AS PSI_ELM_SCENARIO, 
 --    LEFT(A.YYYYMM, 4) + '/' + SUBSTRING(A.YYYYMM, 5, 2) AS YYYYMM, 
-    replace(A.YYYYMM,'/','') AS YYYYMM,
-   A.BC_CD, 
-   A.SITE_CD, 
-   G.SITE_TXT, 
-   F.BUSINESS_SEG_CD, 
-   F.BUSINESS_SEG_TXT, 
-   LEFT(B.ITEM_CLASSIFICATION_CD, 7) AS ITEM_CLASSIFICATION_CD7, 
-   CASE LEFT(B.ITEM_CLASSIFICATION_CD, 7) 
-      WHEN '1049100' THEN 'FTS' 
-      WHEN '1049103' THEN 'MFTS CAMERA' 
-      WHEN '1049104' THEN 'MFTS LENS' 
-      WHEN '1049105' THEN 'MFTS ACCESSORIES' 
+    A.YYYYMM,
+    A.BC_CD, 
+    A.SITE_CD, 
+    G.SITE_TXT, 
+    F.BUSINESS_SEG_CD, 
+    F.BUSINESS_SEG_TXT, 
+    LEFT(B.ITEM_CLASSIFICATION_CD, 7) AS ITEM_CLASSIFICATION_CD7, 
+    CASE LEFT(B.ITEM_CLASSIFICATION_CD, 7) 
+        WHEN '1049100' THEN 'FTS' 
+        WHEN '1049103' THEN 'MFTS CAMERA' 
+        WHEN '1049104' THEN 'MFTS LENS' 
+        WHEN '1049105' THEN 'MFTS ACCESSORIES' 
     ELSE F.BUSINESS_SEG_TXT END AS ITEM_CLASSIFICATION_7, 
     LEFT(B.ITEM_CLASSIFICATION_CD, 8) AS ProductTypeCD, 
    C.DESCRIPTION AS ProductType, 
@@ -311,13 +331,24 @@ SELECT
    D .DESCRIPTION AS Series, 
    LEFT(B.ITEM_CLASSIFICATION_CD, 12)  AS ModelCD, 
    E.DESCRIPTION AS Model, 
-   LEFT(B.ITEM_CLASSIFICATION_CD, 12) + B.COLOR_NAME_EN AS ModelCD_COLOR, 
-   E.DESCRIPTION + ' ' + B.COLOR_NAME_EN AS Model_COLOR, 
+   LEFT(B.ITEM_CLASSIFICATION_CD, 12) || B.COLOR_NAME_EN AS ModelCD_COLOR, 
+   E.DESCRIPTION || ' ' || B.COLOR_NAME_EN AS Model_COLOR, 
    A.PLAN_ITEM_CD, 
-   B.ITEM_TXT/*,SUM(A.QTY) AS QTY*/ , 
+   B.ITEM_TXT/*,SUM(A.QTY) AS QTY* / , 
    A.QTY
-FROM      
-    w_data_list as  A   -- ★★★★★★
+FROM  (
+    select 
+        PLANNING_DATA, 
+        SCENARIO, 
+        cast(YYYYMM as int) as YYYYMM, 
+        cast(BC_CD as int) as BC_CD, 
+        SITE_CD, 
+        PLAN_ITEM_CD, 
+        PSI_ELEMENT, 
+        QTY
+    from
+        w_data_list   -- ★★★★★★
+) as A
 
 left join
    {{ source('dbo', 'DBO_ITEM_APPLICATION') }} as B  --[dbo].[ITEM_APPLICATION] AS B 
@@ -327,7 +358,9 @@ on
 left join
     {{ source('dbo', 'DBO_NUM_ITEM_CLASSIFICATION') }} as c  -- [dbo].[NUM_ITEM_CLASSIFICATION] AS C 
 on 
-    C.DELETE_FLAG = 0 AND C.ITEM_CLASSIFICATION_CD = LEFT(B.ITEM_CLASSIFICATION_CD, 8) AND C.ZZKAISO = '3' 
+    C.DELETE_FLAG = 0 
+    AND C.ITEM_CLASSIFICATION_CD = LEFT(B.ITEM_CLASSIFICATION_CD, 8) 
+    AND C.ZZKAISO = '3' 
 left join
    {{ source('dbo', 'DBO_NUM_ITEM_CLASSIFICATION') }} as d  --  [dbo].[NUM_ITEM_CLASSIFICATION] AS D 
 on 
@@ -353,3 +386,6 @@ where
     B.ITEM_CATEGORY_CD2 NOT IN ('3')
 
     
+
+
+*/
