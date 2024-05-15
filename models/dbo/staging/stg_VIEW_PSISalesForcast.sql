@@ -7,7 +7,8 @@ with w_current_date_info as (
     select 
         *
     from 
-       IT_TEST_DB.DBT_4_YOSHI.STG_DATE_CALENDER
+    --    IT_TEST_DB.DBT_4_YOSHI.STG_DATE_CALENDER
+        {{ ref("stg_date_calender") }}
 ),
 
 w_data_list as (

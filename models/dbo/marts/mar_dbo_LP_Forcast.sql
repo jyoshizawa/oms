@@ -12,12 +12,14 @@ with
     ),
 
     w_scenario_and_yyyymm as (
+        -- 2月までの実績用
         select
-            'FY' || yyyy as fy_name,
             yyyy || '/01' as scenario_base,
             yyyy || '/03' as scenario_ac_m,
-            last_yyyy || '04' as start_yyyymm,
-            yyyy || '03' as end_yyyymm
+            last_yyyy || '04' as ac_start_yyyymm,
+            yyyy || '03' as ac_end_yyyymm,
+            yyyy || '01' as lp_start_yyyymm,
+            yyyy || '03' as lp_end_yyyymm
         from w_year_base
     ),
 
@@ -43,9 +45,11 @@ with
             ) as lical_list(site_sort, site_cd, site_name)
     ),
 
+
     -- --------------------------------------------------------------------------
-    -- PSI 計算
     w_sum_list as (
+
+        -- PSI 計算1  12月までの実績
         select
             psi_period,
             scenario,
@@ -64,10 +68,41 @@ with
             {{ ref("stg_VIEW_PSISalesForcast") }}
         where
             psi_element in ('LP ETD(IN)')  --  条件を追加
-            and (
-                scenario in (select scenario_base from w_scenario_and_yyyymm)
-                or scenario in (select scenario_ac_m from w_scenario_and_yyyymm)
-            )
+            and scenario in (select scenario_base from w_scenario_and_yyyymm )
+        group by
+            psi_period,
+            scenario,
+            business_seg_cd,
+            yyyymm,
+            item_classification_cd7,
+            producttypecd,
+            seriescd,
+            modelcd,
+            modelcd_color,
+            model_color,
+            site_cd
+        
+        -- 3月 LP
+        union all
+        select
+            psi_period,
+            scenario,
+            business_seg_cd,
+            yyyymm,
+            item_classification_cd7,
+            producttypecd,
+            seriescd,
+            modelcd,
+            modelcd_color,
+            model_color,
+            site_cd,
+            sum(qty) as qty
+        from
+            -- IT_TEST_DB.DBT_4_YOSHI.STG_VIEW_PSISALESFORCAST
+            {{ ref("stg_VIEW_PSISalesForcast") }}
+        where
+            psi_element not in ('LP ETD(IN)')  --  条件を追加
+            and scenario in (select scenario_ac_m from w_scenario_and_yyyymm )
         group by
             psi_period,
             scenario,
@@ -82,27 +117,28 @@ with
             site_cd
     ),
 
-    --
+ --
     w_base as (  -- 1 SCENARIO 基準月 
-        select t2.fy_name, t1.*
+        select t1.*
         from w_sum_list as t1
         inner join
             w_scenario_and_yyyymm as t2
             on t1.scenario = t2.scenario_base
-            and t1.yyyymm between t2.start_yyyymm and t2.end_yyyymm
+            and t1.yyyymm between t2.ac_start_yyyymm and t2.ac_end_yyyymm
     ),
 
     w_actual_month as (  -- 2 SCENARIO 計画月
-        select t2.fy_name, t1.*
+        select t1.*
         from w_sum_list as t1
         inner join
             w_scenario_and_yyyymm as t2
             on t1.scenario = t2.scenario_ac_m
-            and t1.yyyymm between t2.start_yyyymm and t2.end_yyyymm
+            and t1.yyyymm between t2.lp_start_yyyymm and t2.lp_end_yyyymm
     )
 
 
--- --------------------------------------------------------------------------
+
+----------------------------------------------------------------------------
 select
     t1.psi_period,
     t1.scenario,
@@ -118,7 +154,7 @@ select
     t3.site_name,
     t3.site_sort,
     t1.qty as qty,
-    ifnull(t2.qty, 0) as latest_qty,
+    case when right(t1.yyyymm,2) = '03'  then ifnull(t2.qty, 0) else t1.qty end  as latest_qty,
     t4.zzkaiso,
     t4.description
 from w_base as t1
@@ -143,17 +179,24 @@ left join
     on t1.seriescd = t4.item_classification_cd
 
 
-
+/*
+select * from 
+    w_sum_list as t1
+where   
+    t1.modelcd_color = '104910311500Black'
+    and t1.SITE_CD ='S031'
+*/
 /*
 select 
 *
 from 
-w_base as t1  -- w_base w_actual_month
-*/
+w_actual_month as t1  -- w_base w_actual_month
+
 
 where
     -- t1.SCENARIO = '2024/01'
-    --  t1.YYYYMM = 202403
-     t1.SERIESCD = '1049103116'
+     t1.modelcd = '104910311501'
     and t1.SITE_CD ='S031'
-
+    -- and t1.YYYYMM = 202403
+    
+*/
