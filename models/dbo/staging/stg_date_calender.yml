@@ -1,0 +1,9 @@
+models:
+  - name: stg_date_calender
+    description: current_date__base calender
+    # columns:
+    # --   - name: customer_id
+    # --     description: The unique key for each customer.
+    # --     tests:
+    # --       - not_null
+    # --       - unique
