@@ -34,7 +34,7 @@ w_data_list as (
     where
         t1.PLANNING_DATA = 'Monthly Plan' 
         and t1.PSI_ELEMENT IN ('LS', 'LP ETD(IN)')
-        and t1.YYYYMM > (select SART_YYYYMM from  w_current_date_info)
+        and t1.YYYYMM >= (select SART_YYYYMM from  w_current_date_info)
         and t1.SCENARIO between (select sart_SCENARIO from  w_current_date_info) 
                         and     (select end_SCENARIO from  w_current_date_info)
     group by
