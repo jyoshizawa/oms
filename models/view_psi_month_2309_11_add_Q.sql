@@ -1,3 +1,6 @@
+--  sample01_PSI_Excel画面イメージ 確認用
+-- 既存の「PSI_MONTH_2309_10_11」テーブルに、YYYYMMの四半期情報（q_YYYYMM）を追加
+
 select 
     *,
 
