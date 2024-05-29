@@ -3,7 +3,6 @@
 -- IT_TEST_DB.DBT_4_YOSHI.wk03_staging
 -- staging です
 
--- パラメータ
 {% set PSI_ELEMENTs = [  
             { 'id':'k_I', 'name':'(KIT)I' },
             { 'id':'k_I_un', 'name':'(KIT)I Unsaleable' },
